@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1674623851 source:f:\osmake\symlang\symlang\main.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"version.h"
+
+1674621404 f:\osmake\symlang\symlang\version.h
+
