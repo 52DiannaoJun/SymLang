@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1674623851 source:f:\osmake\symlang\symlang\main.cpp
+1674712196 source:f:\osmake\symlang\symlang\main.cpp
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
