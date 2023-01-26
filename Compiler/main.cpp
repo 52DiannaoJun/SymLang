@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "version.h"
+//#define putcode(a,b) putc(a,b)
 using namespace std;
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -12,8 +13,8 @@ enum CODE_ID
     NOP,END,RETS,RETL,
     PUSHa,PUSHreg,PUSHimm8,PUSHimm16,PUSHimm32,PUSHimm64,
     POPa,POPreg,
-    absJMPimm,absJMPreg,absJMPregreg,
-    JMPimm,JMPreg
+    absJMPimm64,absJMPreg,absJMPregreg,absJMPregimm64,
+    JMPimm64,JMPreg
 };
 enum TYPE_INFO_SIZE {imm,mem,rmm0,rmm1,reg};
 struct TYPE
@@ -25,7 +26,9 @@ struct TYPE
 
 void getcode(void);
 TYPE getnum(void);
-void putcode(CODE_ID,_iobuf*);
+void putcode(CODE_ID a,FILE*b){
+    fwrite(&a,2,1,b);
+}
 void help (void);
 void error_(void);
 FILE*fip,*fop;
@@ -144,6 +147,55 @@ void getcode(void)
         }
         else error_();
     }
+    else if(!strcmp(buff,"jmp"))
+    {
+        TYPE ttyp=getnum();
+        u64 tmp=ttyp.IMM;
+        if(ttyp.TYP==reg)
+        {
+            putcode(absJMPreg,fop);
+            fwrite(&ttyp.REG,2,1,fop);
+        }
+        else if(ttyp.TYP==imm)
+        {
+            putcode(absJMPimm64,fop);
+            fwrite(&tmp,sizeof(tmp),1,fop);
+        }
+        else error_();
+    }
+    else if(!strcmp(buff,"jmps"))
+    {
+        TYPE ttyp=getnum();
+        u64 tmp=ttyp.IMM;
+        if(ttyp.TYP==reg)
+        {
+            putcode(JMPreg,fop);
+            fwrite(&ttyp.REG,2,1,fop);
+        }
+        else if(ttyp.TYP==imm)
+        {
+            putcode(JMPimm64,fop);
+            fwrite(&tmp,sizeof(tmp),1,fop);
+        }
+        else error_();
+    }
+    else if(!strcmp(buff,"jmpl"))
+    {
+        TYPE ttyp=getnum();
+        u64 tmp=ttyp.IMM;
+        if(ttyp.TYP==reg)
+        {
+            putcode(absJMPregreg,fop);
+            fwrite(&ttyp.REG,2,1,fop);
+        }
+        else if(ttyp.TYP==imm)
+        {
+            putcode(absJMPregimm64,fop);
+            fwrite(&tmp,sizeof(tmp),1,fop);
+        }
+        else error_();
+    }
+    else error_();
 }
 
 TYPE getnum (void)
@@ -288,11 +340,6 @@ TYPE getnum (void)
         else error_();
     }
     return ttyp;
-}
-void putcode(CODE_ID num,_iobuf*f){
-    u16 tmp=num;
-    fwrite(&tmp,sizeof(num),1,f);
-    return;
 }
 
 void help (void)
